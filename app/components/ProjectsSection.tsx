@@ -5,6 +5,7 @@ import { Suspense, useRef } from "react";
 import { motion } from "framer-motion";
 import { Icon } from "@iconify/react";
 import * as THREE from "three";
+import Image from "next/image";
 
 // Enhanced 3D Project Card Background
 function ProjectCard3D({ index }: { index: number }) {
@@ -315,10 +316,12 @@ export default function ProjectsSection() {
                 
                 {/* Enhanced Project Image */}
                 <div className="relative h-64 overflow-hidden">
-                  <img
+                  <Image
                     src={project.image}
                     alt={project.title}
-                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                    fill
+                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                    className="object-cover group-hover:scale-110 transition-transform duration-700"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
                   

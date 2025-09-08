@@ -22,6 +22,7 @@ export default function Icon() {
           display: 'flex',
         }}
       >
+        {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src="https://res.cloudinary.com/dlyctssmy/image/upload/v1734845393/android-chrome-512x512_oh3h9a.png"
           alt="Chirag Sahani Portfolio Icon"

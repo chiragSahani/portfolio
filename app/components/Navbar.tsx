@@ -13,7 +13,6 @@ import { Icon } from '@iconify/react';
  * - smooth scrolling with keyboard support
  * - accessible mobile menu with animated reveal
  * - back-to-top floating action button (FAB)
- * - theme toggle (adds/removes 'cosmic' class on <html>)
  */
 
 const NAV_ITEMS = [
@@ -30,45 +29,6 @@ export default function Navbar() {
   const [shrunken, setShrunken] = useState(false);
   const [active, setActive] = useState<string>('#home');
   const [showTopBtn, setShowTopBtn] = useState(false);
-  
-  const [isDarkMode, setIsDarkMode] = useState(true);
-
-  // Initialize theme on mount
-  useEffect(() => {
-    const savedTheme = localStorage.getItem('theme');
-    if (savedTheme) {
-      const isDark = savedTheme === 'dark';
-      setIsDarkMode(isDark);
-      applyTheme(isDark);
-    } else {
-      // Check system preference
-      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-      setIsDarkMode(prefersDark);
-      applyTheme(prefersDark);
-    }
-  }, []);
-
-  const applyTheme = (isDark: boolean) => {
-    const html = document.documentElement;
-    if (isDark) {
-      html.classList.add('dark');
-      html.classList.add('cosmic-theme');
-      localStorage.setItem('theme', 'dark');
-    } else {
-      html.classList.remove('dark');
-      html.classList.remove('cosmic-theme');
-      localStorage.setItem('theme', 'light');
-    }
-  };
-
-  const toggleTheme = () => {
-    setIsDarkMode((prev) => {
-      const newValue = !prev;
-      applyTheme(newValue);
-      return newValue;
-    });
-  };
-
   const sectionsRef = useRef<Record<string, IntersectionObserverEntry | null>>({});
   const observerRef = useRef<IntersectionObserver | null>(null);
 
@@ -220,26 +180,6 @@ export default function Navbar() {
 
             {/* Right controls */}
             <div className="flex items-center gap-3">
-              {/* Theme toggle */}
-              <button
-                onClick={toggleTheme}
-                aria-pressed={isDarkMode}
-                aria-label={`Switch to ${isDarkMode ? 'light' : 'dark'} theme`}
-                className="inline-flex items-center justify-center p-2 rounded-full bg-white/5 text-gray-200 hover:bg-white/10 focus:outline-none transition-all duration-200 hover:scale-105"
-                title={isDarkMode ? 'Switch to light theme' : 'Switch to dark theme'}
-              >
-                <motion.div
-                  initial={false}
-                  animate={{ rotate: isDarkMode ? 0 : 180 }}
-                  transition={{ duration: 0.3, ease: "easeInOut" }}
-                >
-                  <Icon 
-                    icon={isDarkMode ? 'ph:sun-bold' : 'ph:moon-bold'} 
-                    className="w-5 h-5" 
-                  />
-                </motion.div>
-              </button>
-
               {/* Desktop CTA */}
               <div className="hidden md:block">
                 <motion.a
@@ -302,31 +242,6 @@ export default function Navbar() {
                     {item.name}
                   </a>
                 ))}
-
-                {/* Mobile theme toggle */}
-                <div className="px-3 mt-3 mb-3">
-                  <button
-                    onClick={toggleTheme}
-                    aria-pressed={isDarkMode}
-                    aria-label={`Switch to ${isDarkMode ? 'light' : 'dark'} theme`}
-                    className="flex items-center justify-center gap-2 w-full px-4 py-2 rounded-full bg-white/5 text-gray-200 hover:bg-white/10 focus:outline-none transition-all duration-200"
-                    title={isDarkMode ? 'Switch to light theme' : 'Switch to dark theme'}
-                  >
-                    <motion.div
-                      initial={false}
-                      animate={{ rotate: isDarkMode ? 0 : 180 }}
-                      transition={{ duration: 0.3, ease: "easeInOut" }}
-                    >
-                      <Icon 
-                        icon={isDarkMode ? 'ph:sun-bold' : 'ph:moon-bold'} 
-                        className="w-5 h-5" 
-                      />
-                    </motion.div>
-                    <span className="text-sm font-medium">
-                      {isDarkMode ? 'Light Mode' : 'Dark Mode'}
-                    </span>
-                  </button>
-                </div>
 
                 <div className="px-3 mt-3">
                   <motion.a

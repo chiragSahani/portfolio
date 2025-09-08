@@ -4,6 +4,7 @@ const nextConfig: NextConfig = {
   // Remove standalone output for Netlify - use default static export
   output: "export",
   images: {
+    unoptimized: true,
     remotePatterns: [
       {
         protocol: 'https',

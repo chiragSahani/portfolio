@@ -1,11 +1,10 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  output: "export",
+  // output: "export", // Temporarily disabled for debugging
   
   // Performance optimizations
   experimental: {
-    optimizeCss: true,
     optimizePackageImports: ['@iconify/react', 'framer-motion', 'three'],
   },
   
@@ -22,7 +21,6 @@ const nextConfig: NextConfig = {
     if (!dev && !isServer) {
       config.resolve.alias = {
         ...config.resolve.alias,
-        '@iconify/react': '@iconify/react/dist/iconify.mjs',
       };
     }
     

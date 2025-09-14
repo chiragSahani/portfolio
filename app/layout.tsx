@@ -1,14 +1,8 @@
 import type { Metadata } from "next";
 import { Geist } from "next/font/google";
 import "./globals.css";
-import dynamic from "next/dynamic";
 import Navbar from "@/app/components/Navbar";
-
-// Lazy load analytics to improve TTI
-const LazyAnalytics = dynamic(
-  () => import("cosmic-analytics").then(mod => ({ default: mod.CosmicAnalyticsProvider })),
-  { ssr: false }
-);
+import ClientAnalytics from "@/app/components/ClientAnalytics";
 
 const primaryFont = Geist({
   weight: ["400", "600", "700"],
@@ -67,9 +61,9 @@ export default function RootLayout({
       <body className="antialiased">
         <main className="h-screen">
           <Navbar />
-          <LazyAnalytics>
+          <ClientAnalytics>
             {children}
-          </LazyAnalytics>
+          </ClientAnalytics>
         </main>
       </body>
     </html>

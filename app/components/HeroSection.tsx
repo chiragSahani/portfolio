@@ -33,9 +33,8 @@ function Interactive3DLogo({ pulse = true, visible = true }: { pulse?: boolean; 
   const meshRef = useRef<THREE.Mesh | null>(null);
   const prefersReduced = useReducedMotion();
 
-  if (!visible) return null;
-
   useFrame((state) => {
+    if (!visible) return;
     if (!meshRef.current) return;
     const t = state.clock.elapsedTime;
     meshRef.current.rotation.x = Math.sin(t * (prefersReduced ? 0.2 : 1.0)) * 0.2;
@@ -47,6 +46,8 @@ function Interactive3DLogo({ pulse = true, visible = true }: { pulse?: boolean; 
       if (m) m.emissiveIntensity = 0.08 + Math.abs(Math.sin(t * 1.3)) * 0.25;
     }
   });
+
+  if (!visible) return null;
 
   // lower segment counts for perf
   return (
@@ -71,9 +72,8 @@ function FloatingCode({ disabled = false, visible = true }: { disabled?: boolean
   const groupRef = useRef<THREE.Group | null>(null);
   const prefersReduced = useReducedMotion();
 
-  if (!visible || disabled) return null;
-
   useFrame((state) => {
+    if (!visible || disabled) return;
     if (!groupRef.current) return;
     const t = state.clock.elapsedTime;
     groupRef.current.rotation.y = t * (prefersReduced ? 0.02 : 0.08);
@@ -82,6 +82,8 @@ function FloatingCode({ disabled = false, visible = true }: { disabled?: boolean
       c.position.y = Math.sin(t * 1.3 + i) * 0.12;
     });
   });
+
+  if (!visible || disabled) return null;
 
   const symbols = ['<>', '{}', '[]', '()'];
 

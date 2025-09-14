@@ -1,7 +1,7 @@
 'use client';
 
 import dynamic from 'next/dynamic';
-import { Suspense } from 'react';
+
 
 // Lazy load heavy components
 export const LazyAboutSection = dynamic(() => import('./AboutSection'), {
@@ -21,8 +21,7 @@ export const LazyAboutSection = dynamic(() => import('./AboutSection'), {
         </div>
       </div>
     </div>
-  ),
-  ssr: false
+  )
 });
 
 export const LazyProjectsSection = dynamic(() => import('./ProjectsSection'), {
@@ -40,7 +39,6 @@ export const LazyProjectsSection = dynamic(() => import('./ProjectsSection'), {
       </div>
     </div>
   ),
-  ssr: false
 });
 
 export const LazySkillsSection = dynamic(() => import('./SkillsSection'), {
@@ -58,7 +56,6 @@ export const LazySkillsSection = dynamic(() => import('./SkillsSection'), {
       </div>
     </div>
   ),
-  ssr: false
 });
 
 export const LazyContactSection = dynamic(() => import('./ContactSection'), {
@@ -84,7 +81,6 @@ export const LazyContactSection = dynamic(() => import('./ContactSection'), {
       </div>
     </div>
   ),
-  ssr: false
 });
 
 export const LazyFooter = dynamic(() => import('./Footer'), {
@@ -108,5 +104,4 @@ export const LazyFooter = dynamic(() => import('./Footer'), {
       </div>
     </div>
   ),
-  ssr: false
 });

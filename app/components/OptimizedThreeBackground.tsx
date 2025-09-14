@@ -1,6 +1,6 @@
 'use client';
 
-import React, { Suspense, useRef, useMemo, useState, useEffect, useCallback } from 'react';
+import React, { Suspense, useRef, useMemo, useState, useEffect } from 'react';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import * as THREE from 'three';
 
@@ -121,7 +121,7 @@ function OptimizedGeometry({ distance }: { distance: number }) {
 
 // Adaptive renderer component
 function AdaptiveRenderer({ children }: { children: React.ReactNode }) {
-  const { gl, camera } = useThree();
+  const { gl } = useThree();
   const fps = usePerformanceMonitor();
   const [pixelRatio, setPixelRatio] = useState(1);
   

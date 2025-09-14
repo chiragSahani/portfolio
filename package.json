@@ -32,8 +32,8 @@
     "three": "^0.174.0"
   },
   "devDependencies": {
-    "@next/bundle-analyzer": "^15.5.2",
     "@eslint/eslintrc": "^3",
+    "@next/bundle-analyzer": "^15.5.2",
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
     "@types/react": "^19",

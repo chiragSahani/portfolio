@@ -1,28 +1,67 @@
 'use client';
 
-import ThreeBackground from '@/app/components/ThreeBackground';
+import { useState, useEffect } from 'react';
+import OptimizedThreeBackground from '@/app/components/OptimizedThreeBackground';
+import LoadingScreen from '@/app/components/LoadingScreen';
 import HeroSection from '@/app/components/HeroSection';
-import AboutSection from '@/app/components/AboutSection';
-import ProjectsSection from '@/app/components/ProjectsSection';
-import SkillsSection from '@/app/components/SkillsSection';
-import ContactSection from '@/app/components/ContactSection';
-import Footer from '@/app/components/Footer';
+import {
+  LazyAboutSection,
+  LazyProjectsSection,
+  LazySkillsSection,
+  LazyContactSection,
+  LazyFooter
+} from '@/app/components/LazyComponents';
 
 export default function Home() {
+  const [isLoading, setIsLoading] = useState(true);
+  const [showContent, setShowContent] = useState(false);
+
+  useEffect(() => {
+    // Preload critical resources
+    const preloadCritical = async () => {
+      // Preload hero section assets
+      const heroImage = new Image();
+      heroImage.src = 'https://res.cloudinary.com/dlyctssmy/image/upload/v1734845393/android-chrome-512x512_oh3h9a.png';
+      
+      // Wait for critical assets
+      await new Promise(resolve => {
+        heroImage.onload = resolve;
+        heroImage.onerror = resolve; // Continue even if image fails
+      });
+    };
+
+    preloadCritical();
+  }, []);
+
+  const handleLoadingComplete = () => {
+    setIsLoading(false);
+    setTimeout(() => setShowContent(true), 100);
+  };
+
   return (
     <div className="min-h-screen bg-black text-white relative overflow-x-hidden">
-      {/* Global 3D Background */}
-      <ThreeBackground />
+      {isLoading && <LoadingScreen onComplete={handleLoadingComplete} />}
       
-      {/* Main Content */}
-      <div className="relative z-10">
-        <HeroSection />
-        <AboutSection />
-        <ProjectsSection />
-        <SkillsSection />
-        <ContactSection />
-        <Footer />
-      </div>
+      {!isLoading && (
+        <>
+          {/* Optimized 3D Background */}
+          <OptimizedThreeBackground />
+          
+          {/* Main Content */}
+          <div className="relative z-10">
+            <HeroSection />
+            {showContent && (
+              <>
+                <LazyAboutSection />
+                <LazyProjectsSection />
+                <LazySkillsSection />
+                <LazyContactSection />
+                <LazyFooter />
+              </>
+            )}
+          </div>
+        </>
+      )}
     </div>
   );
 }

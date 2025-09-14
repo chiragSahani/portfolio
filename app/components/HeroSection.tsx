@@ -2,7 +2,7 @@
 
 import React, { Suspense, useRef, useState, useEffect, useCallback } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
-import { Text, OrbitControls, Sphere } from '@react-three/drei';
+import { Text, Sphere } from '@react-three/drei';
 import { motion, useReducedMotion } from 'framer-motion';
 import { Icon } from '@iconify/react';
 import * as THREE from 'three';
@@ -29,9 +29,11 @@ function useOnScreen<T extends Element>(ref: React.RefObject<T>, rootMargin = '0
 /* ------------------------
    Interactive 3D Logo (lighter)
    ------------------------ */
-function Interactive3DLogo({ pulse = true }: { pulse?: boolean }) {
+function Interactive3DLogo({ pulse = true, visible = true }: { pulse?: boolean; visible?: boolean }) {
   const meshRef = useRef<THREE.Mesh | null>(null);
   const prefersReduced = useReducedMotion();
+
+  if (!visible) return null;
 
   useFrame((state) => {
     if (!meshRef.current) return;
@@ -48,11 +50,11 @@ function Interactive3DLogo({ pulse = true }: { pulse?: boolean }) {
 
   // lower segment counts for perf
   return (
-    <Sphere ref={meshRef} args={[1, 28, 16]}>
+    <Sphere ref={meshRef} args={[1, 16, 12]}>
       <meshStandardMaterial
         color="#3b82f6"
-        roughness={0.35}
-        metalness={0.7}
+        roughness={0.5}
+        metalness={0.3}
         transparent
         opacity={0.95}
         emissive="#0ea5e9"
@@ -65,12 +67,14 @@ function Interactive3DLogo({ pulse = true }: { pulse?: boolean }) {
 /* ------------------------
    Floating code symbols (optimized)
    ------------------------ */
-function FloatingCode({ disabled = false }: { disabled?: boolean }) {
+function FloatingCode({ disabled = false, visible = true }: { disabled?: boolean; visible?: boolean }) {
   const groupRef = useRef<THREE.Group | null>(null);
   const prefersReduced = useReducedMotion();
 
+  if (!visible || disabled) return null;
+
   useFrame((state) => {
-    if (!groupRef.current || disabled) return;
+    if (!groupRef.current) return;
     const t = state.clock.elapsedTime;
     groupRef.current.rotation.y = t * (prefersReduced ? 0.02 : 0.08);
     // tiny bob for each child
@@ -79,7 +83,7 @@ function FloatingCode({ disabled = false }: { disabled?: boolean }) {
     });
   });
 
-  const symbols = ['<>', '{}', '[]', '()', '/>', '==='];
+  const symbols = ['<>', '{}', '[]', '()'];
 
   return (
     <group ref={groupRef}>
@@ -92,7 +96,7 @@ function FloatingCode({ disabled = false }: { disabled?: boolean }) {
           <Text
             key={s}
             position={[x, 0, z]}
-            fontSize={0.42}
+            fontSize={0.35}
             color="#00d4ff"
             anchorX="center"
             anchorY="middle"
@@ -118,15 +122,41 @@ function FloatingCode({ disabled = false }: { disabled?: boolean }) {
 export default function HeroSection() {
   const sectionRef = useRef<HTMLElement | null>(null);
   const isVisible = useOnScreen(sectionRef, '-200px'); // lazy-mount canvas when hero enters viewport
-  const [cosmic, setCosmic] = useState(true); // theme toggle for canvas/background
+  const [show3D, setShow3D] = useState(true); // performance toggle
   const prefersReduced = useReducedMotion();
 
-  // Persist theme toggle to html class so other components can react
+  // Performance monitoring
+  const [fps, setFps] = useState(60);
+  const frameCount = useRef(0);
+  const lastTime = useRef(performance.now());
+
   useEffect(() => {
-    const html = document.documentElement;
-    if (cosmic) html.classList.add('cosmic-theme');
-    else html.classList.remove('cosmic-theme');
-  }, [cosmic]);
+    const checkPerformance = () => {
+      frameCount.current++;
+      const now = performance.now();
+      
+      if (now - lastTime.current >= 2000) {
+        const currentFps = Math.round((frameCount.current * 1000) / (now - lastTime.current));
+        setFps(currentFps);
+        
+        // Auto-disable 3D if performance is poor
+        if (currentFps < 25) {
+          setShow3D(false);
+        }
+        
+        frameCount.current = 0;
+        lastTime.current = now;
+      }
+      
+      if (show3D) {
+        requestAnimationFrame(checkPerformance);
+      }
+    };
+    
+    if (show3D) {
+      requestAnimationFrame(checkPerformance);
+    }
+  }, [show3D]);
 
   // keyboard accessible CTA handler
   const handleCTAClick = useCallback((href: string) => {
@@ -150,32 +180,28 @@ export default function HeroSection() {
 
       {/* 3D Canvas (lazy mount for perf) */}
       <div className="absolute inset-0 z-0">
-        {isVisible ? (
+        {isVisible && show3D ? (
           <Canvas
             camera={{ position: [0, 0, 5], fov: 60 }}
-            dpr={[1, 1.5]}
-            gl={{ antialias: false, alpha: false }}
+            dpr={[1, Math.min(window.devicePixelRatio, 2)]}
+            gl={{ 
+              antialias: false, 
+              alpha: false,
+              powerPreference: 'high-performance',
+              preserveDrawingBuffer: false
+            }}
             style={{ width: '100%', height: '100%' }}
+            frameloop={prefersReduced ? 'never' : 'always'}
           >
             {/* solid background color for consistent contrast */}
             <color attach="background" args={['#000000']} />
 
-            <ambientLight intensity={0.6} />
-            <directionalLight position={[8, 8, 5]} intensity={0.9} />
-            <pointLight position={[-8, -6, -4]} intensity={0.45} color="#3b82f6" />
-            <pointLight position={[6, -4, 4]} intensity={0.35} color="#8b5cf6" />
+            <ambientLight intensity={0.4} />
+            <directionalLight position={[5, 5, 5]} intensity={0.6} />
 
             <Suspense fallback={null}>
-              <Interactive3DLogo pulse={!prefersReduced} />
-              <FloatingCode disabled={prefersReduced} />
-              <OrbitControls
-                enableZoom={false}
-                enablePan={false}
-                autoRotate={!prefersReduced}
-                autoRotateSpeed={0.25}
-                maxPolarAngle={Math.PI / 2}
-                minPolarAngle={Math.PI / 2}
-              />
+              <Interactive3DLogo pulse={!prefersReduced} visible={show3D} />
+              <FloatingCode disabled={prefersReduced} visible={show3D} />
             </Suspense>
           </Canvas>
         ) : null}
@@ -186,14 +212,15 @@ export default function HeroSection() {
         {/* Top controls: theme toggle (accessible) */}
         <div className="absolute top-6 right-6 z-20">
           <button
-            onClick={() => setCosmic((s) => !s)}
-            aria-pressed={cosmic}
-            aria-label={cosmic ? 'Cosmic theme (on)' : 'Cosmic theme (off)'}
+            onClick={() => setShow3D((s) => !s)}
+            aria-pressed={show3D}
+            aria-label={show3D ? '3D effects (on)' : '3D effects (off)'}
             className="inline-flex items-center gap-2 px-3 py-2 rounded-full bg-white/6 text-white text-sm focus:outline-none focus:ring-2 focus:ring-cyan-400 transition"
-            title="Toggle cosmic theme"
+            title="Toggle 3D effects"
           >
-            <Icon icon={cosmic ? 'mdi:weather-night' : 'mdi:weather-sunny'} />
-            <span className="sr-only">Toggle theme</span>
+            <Icon icon={show3D ? 'mdi:cube-outline' : 'mdi:cube-off-outline'} />
+            <span className="sr-only">Toggle 3D</span>
+            <span className="text-xs">{fps}fps</span>
           </button>
         </div>
 

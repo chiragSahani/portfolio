@@ -1,10 +1,37 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  // Remove standalone output for Netlify - use default static export
   output: "export",
+  
+  // Performance optimizations
+  experimental: {
+    optimizeCss: true,
+    optimizePackageImports: ['@iconify/react', 'framer-motion', 'three'],
+  },
+  
+  // Bundle analyzer in development
+  webpack: (config, { dev, isServer }) => {
+    // Tree shaking optimizations
+    config.optimization = {
+      ...config.optimization,
+      usedExports: true,
+      sideEffects: false,
+    };
+    
+    // Reduce bundle size
+    if (!dev && !isServer) {
+      config.resolve.alias = {
+        ...config.resolve.alias,
+        '@iconify/react': '@iconify/react/dist/iconify.mjs',
+      };
+    }
+    
+    return config;
+  },
+  
   images: {
     unoptimized: true,
+    formats: ['image/webp', 'image/avif'],
     remotePatterns: [
       {
         protocol: 'https',
@@ -35,10 +62,28 @@ const nextConfig: NextConfig = {
   // Enable compression and optimization
   compress: true,
   poweredByHeader: false,
+  
   // Optimize for static export
   trailingSlash: false,
-  // Remove server-side specific config for static export
-  // allowedDevOrigins: ['app-cosmic.com', '*.app-cosmic.com', 'vibecode.net', '*.vibecode.net'],
+  
+  // Performance headers
+  async headers() {
+    return [
+      {
+        source: '/(.*)',
+        headers: [
+          {
+            key: 'X-DNS-Prefetch-Control',
+            value: 'on'
+          },
+          {
+            key: 'X-Frame-Options',
+            value: 'DENY'
+          }
+        ],
+      },
+    ];
+  },
 };
 
 export default nextConfig;

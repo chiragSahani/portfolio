@@ -1,0 +1,19 @@
+{
+  "budget": [
+    {
+      "resourceType": "script",
+      "budget": 150
+    },
+    {
+      "resourceType": "total",
+      "budget": 500
+    },
+    {
+      "resourceType": "image",
+      "budget": 200
+    }
+  ],
+  "options": {
+    "outputFormat": "json"
+  }
+}
